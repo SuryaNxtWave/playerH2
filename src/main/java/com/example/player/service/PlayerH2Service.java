@@ -23,33 +23,30 @@ public class PlayerH2Service implements PlayerRepository{
     @Override
     public Player getPlayerById(int playerId){
         try{
-        Player player = db.queryForObject("select * from team where id = ?", new PlayerRowMapper(),playerId);
-        return extracted(player);
+        return db.queryForObject("select * from team where playerId = ?", new PlayerRowMapper(),playerId);
+        
         }
         catch(Exception e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
-	private Player extracted(Player player) {
-		return player;
-	}
+	
     @Override
     public Player addPlayer(Player player){
-        db.update("insert into team(playerName,jerseyNumber,role) values(?,?,?)",new PlayerRowMapper(),player.getPlayerName(),player.getJerseyNumber(),player.getRole());
-        
-        Player savedPlayer = db.queryForObject("select * from team where name = ? and jerseyNumber = ?,role = ?",new PlayerRowMapper(),player.getPlayerName(),player.getJerseyNumber(),player.getRole());
-        return extracted(savedPlayer);
+        db.update("insert into team(playerName,jerseyNumber,role) values(?,?,?)",player.getPlayerName(),player.getJerseyNumber(),player.getRole());
+
+       return db.queryForObject("select * from team where name = ? and jerseyNumber = ? and role = ?",new PlayerRowMapper(),player.getPlayerName(),player.getJerseyNumber(),player.getRole());
     }
     @Override
     public Player updatePlayer(int playerId,Player player){
         if(player.getPlayerName() != null){
-            db.update("update team set playerName = ? where id = ?",player.getPlayerName(),playerId);
+            db.update("update team set playerName = ? where playerId = ?",player.getPlayerName(),playerId);
         }
          if(String.valueOf(player.getJerseyNumber()) != null){
-            db.update("update team set jerseyNumber = ? where id = ?",player.getJerseyNumber(),playerId);
+            db.update("update team set jerseyNumber = ? where playerId = ?",player.getJerseyNumber(),playerId);
         }
          if(player.getRole() != null){
-            db.update("update team set role = ? where id = ?",player.getRole(),playerId);
+            db.update("update team set role = ? where playerId = ?",player.getRole(),playerId);
         }
         return getPlayerById(playerId);
     }
@@ -57,5 +54,5 @@ public class PlayerH2Service implements PlayerRepository{
     public void deletePlayer(int playerId){
         db.update("delete from team where playerId = ?",playerId);
     }
-    
+
 }
